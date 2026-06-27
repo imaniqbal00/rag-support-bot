@@ -1,5 +1,5 @@
 const HF_API_URL =
-  'https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2';
+  'https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2';
 
 async function hfFetch(inputs: string | string[]): Promise<number[] | number[][]> {
   const response = await fetch(HF_API_URL, {
