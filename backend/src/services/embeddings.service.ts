@@ -1,54 +1,59 @@
 import https from 'https';
 
-const HF_MODEL = 'sentence-transformers/all-MiniLM-L6-v2';
-
-function httpsPost(data: any, token?: string): Promise<any> {
+function coherePost(texts: string[]): Promise<{ embeddings: number[][] }> {
   return new Promise((resolve, reject) => {
-    const body = JSON.stringify({ inputs: data, options: { wait_for_model: true } });
-    const options: https.RequestOptions = {
-      hostname: 'api-inference.huggingface.co',
-      path: `/models/${HF_MODEL}`,
+    const apiKey = process.env.COHERE_API_KEY;
+    if (!apiKey) return reject(new Error('COHERE_API_KEY not set'));
+
+    const body = JSON.stringify({
+      texts,
+      model: 'embed-english-light-v3.0',
+      input_type: 'search_document',
+      truncate: 'END',
+    });
+
+    const req = https.request({
+      hostname: 'api.cohere.com',
+      path: '/v1/embed',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Length': Buffer.byteLength(body),
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      timeout: 50000,
-    };
-
-    const req = https.request(options, (res) => {
+      timeout: 30000,
+    }, (res) => {
       let raw = '';
-      res.on('data', (chunk) => { raw += chunk; });
+      res.on('data', (c) => { raw += c; });
       res.on('end', () => {
         try {
           const parsed = JSON.parse(raw);
           if (res.statusCode && res.statusCode >= 400) {
-            reject(new Error(`HF API ${res.statusCode}: ${raw}`));
+            reject(new Error(`Cohere API ${res.statusCode}: ${raw}`));
           } else {
             resolve(parsed);
           }
         } catch {
-          reject(new Error(`Invalid JSON from HF API: ${raw.slice(0, 200)}`));
+          reject(new Error(`Invalid JSON: ${raw.slice(0, 200)}`));
         }
       });
     });
 
     req.on('error', reject);
-    req.on('timeout', () => { req.destroy(); reject(new Error('HF API request timed out')); });
+    req.on('timeout', () => { req.destroy(); reject(new Error('Cohere request timed out')); });
     req.write(body);
     req.end();
   });
 }
 
 export async function embed(text: string): Promise<number[]> {
-  const result = await httpsPost(text, process.env.HF_API_TOKEN) as number[] | number[][];
-  return Array.isArray(result[0]) ? (result as number[][])[0] : (result as number[]);
+  const result = await coherePost([text]);
+  return result.embeddings[0];
 }
 
 export async function embedBatch(texts: string[]): Promise<number[][]> {
-  const result = await httpsPost(texts, process.env.HF_API_TOKEN) as number[][];
-  return result;
+  const result = await coherePost(texts);
+  return result.embeddings;
 }
 
 export function splitIntoChunks(text: string, chunkSize = 512, overlap = 64): string[] {
