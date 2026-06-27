@@ -40,7 +40,7 @@ router.post('/', requireApiToken, async (req: AuthRequest, res: Response) => {
       tenant_id: tenantId,
       question: question.trim(),
       answer,
-      sources: chunks.map((c) => ({ content: c.content.slice(0, 200), similarity: c.confidence })),
+      sources: chunks.map((c) => ({ content: c.content.slice(0, 200), similarity: c.similarity })),
       confidence,
       resolved,
     }).then(() => {});
