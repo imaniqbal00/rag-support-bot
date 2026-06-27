@@ -1,6 +1,6 @@
 import https from 'https';
 
-function coherePost(texts: string[]): Promise<{ embeddings: number[][] }> {
+function coherePost(texts: string[], inputType: 'search_document' | 'search_query' = 'search_document'): Promise<{ embeddings: number[][] }> {
   return new Promise((resolve, reject) => {
     const apiKey = process.env.COHERE_API_KEY;
     if (!apiKey) return reject(new Error('COHERE_API_KEY not set'));
@@ -8,7 +8,7 @@ function coherePost(texts: string[]): Promise<{ embeddings: number[][] }> {
     const body = JSON.stringify({
       texts,
       model: 'embed-english-light-v3.0',
-      input_type: 'search_document',
+      input_type: inputType,
       truncate: 'END',
     });
 
@@ -47,7 +47,7 @@ function coherePost(texts: string[]): Promise<{ embeddings: number[][] }> {
 }
 
 export async function embed(text: string): Promise<number[]> {
-  const result = await coherePost([text]);
+  const result = await coherePost([text], 'search_query');
   return result.embeddings[0];
 }
 
