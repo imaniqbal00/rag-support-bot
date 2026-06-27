@@ -1,12 +1,14 @@
-// Use /tmp for model cache — required for Vercel serverless environment
 process.env['TRANSFORMERS_CACHE'] = '/tmp/.cache/huggingface';
 process.env['HF_HOME'] = '/tmp/.cache/huggingface';
 
 let embedder: any = null;
 
+// Use Function constructor to bypass TypeScript's ESM→CJS transform
+const dynamicImport = new Function('m', 'return import(m)');
+
 async function getEmbedder() {
   if (!embedder) {
-    const { pipeline, env } = await import('@xenova/transformers');
+    const { pipeline, env } = await dynamicImport('@xenova/transformers');
     env.cacheDir = '/tmp/.cache/transformers';
     env.localModelPath = '/tmp/.cache/transformers';
     console.log('Loading embedding model…');
@@ -24,7 +26,6 @@ export async function embed(text: string): Promise<number[]> {
   return Array.from(output.data) as number[];
 }
 
-// Chunk text with overlap — recursive character splitting strategy
 export function splitIntoChunks(
   text: string,
   chunkSize = 512,
@@ -37,7 +38,6 @@ export function splitIntoChunks(
     let end = start + chunkSize;
 
     if (end < text.length) {
-      // Try to break on a paragraph or sentence boundary
       const breakOn = ['\n\n', '\n', '. ', ' '];
       for (const sep of breakOn) {
         const idx = text.lastIndexOf(sep, end);
