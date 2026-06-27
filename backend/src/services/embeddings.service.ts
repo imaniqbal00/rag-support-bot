@@ -1,29 +1,25 @@
-process.env['TRANSFORMERS_CACHE'] = '/tmp/.cache/huggingface';
-process.env['HF_HOME'] = '/tmp/.cache/huggingface';
-
-let embedder: any = null;
-
-// Use Function constructor to bypass TypeScript's ESM→CJS transform
-const dynamicImport = new Function('m', 'return import(m)');
-
-async function getEmbedder() {
-  if (!embedder) {
-    const { pipeline, env } = await dynamicImport('@xenova/transformers');
-    env.cacheDir = '/tmp/.cache/transformers';
-    env.localModelPath = '/tmp/.cache/transformers';
-    console.log('Loading embedding model…');
-    embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', {
-      quantized: true,
-    });
-    console.log('Embedding model ready.');
-  }
-  return embedder;
-}
+const HF_API_URL =
+  'https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2';
 
 export async function embed(text: string): Promise<number[]> {
-  const extractor = await getEmbedder();
-  const output = await extractor(text, { pooling: 'mean', normalize: true });
-  return Array.from(output.data) as number[];
+  const response = await fetch(HF_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(process.env.HF_API_TOKEN
+        ? { Authorization: `Bearer ${process.env.HF_API_TOKEN}` }
+        : {}),
+    },
+    body: JSON.stringify({ inputs: text, options: { wait_for_model: true } }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Embedding API error ${response.status}: ${err}`);
+  }
+
+  const result = await response.json() as number[] | number[][];
+  return Array.isArray(result[0]) ? (result as number[][])[0] : (result as number[]);
 }
 
 export function splitIntoChunks(
