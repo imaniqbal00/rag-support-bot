@@ -1,63 +1,70 @@
-const HF_API_URL =
-  'https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2';
+import https from 'https';
 
-async function hfFetch(inputs: string | string[]): Promise<number[] | number[][]> {
-  const response = await fetch(HF_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(process.env.HF_API_TOKEN
-        ? { Authorization: `Bearer ${process.env.HF_API_TOKEN}` }
-        : {}),
-    },
-    body: JSON.stringify({ inputs, options: { wait_for_model: true } }),
-    signal: AbortSignal.timeout(45000),
+const HF_MODEL = 'sentence-transformers/all-MiniLM-L6-v2';
+
+function httpsPost(data: any, token?: string): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({ inputs: data, options: { wait_for_model: true } });
+    const options: https.RequestOptions = {
+      hostname: 'api-inference.huggingface.co',
+      path: `/models/${HF_MODEL}`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      timeout: 50000,
+    };
+
+    const req = https.request(options, (res) => {
+      let raw = '';
+      res.on('data', (chunk) => { raw += chunk; });
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(raw);
+          if (res.statusCode && res.statusCode >= 400) {
+            reject(new Error(`HF API ${res.statusCode}: ${raw}`));
+          } else {
+            resolve(parsed);
+          }
+        } catch {
+          reject(new Error(`Invalid JSON from HF API: ${raw.slice(0, 200)}`));
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.on('timeout', () => { req.destroy(); reject(new Error('HF API request timed out')); });
+    req.write(body);
+    req.end();
   });
-
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Embedding API error ${response.status}: ${err}`);
-  }
-
-  return response.json();
 }
 
 export async function embed(text: string): Promise<number[]> {
-  const result = await hfFetch(text) as number[] | number[][];
+  const result = await httpsPost(text, process.env.HF_API_TOKEN) as number[] | number[][];
   return Array.isArray(result[0]) ? (result as number[][])[0] : (result as number[]);
 }
 
 export async function embedBatch(texts: string[]): Promise<number[][]> {
-  const result = await hfFetch(texts) as number[][];
+  const result = await httpsPost(texts, process.env.HF_API_TOKEN) as number[][];
   return result;
 }
 
-export function splitIntoChunks(
-  text: string,
-  chunkSize = 512,
-  overlap = 64
-): string[] {
+export function splitIntoChunks(text: string, chunkSize = 512, overlap = 64): string[] {
   const chunks: string[] = [];
   let start = 0;
-
   while (start < text.length) {
     let end = start + chunkSize;
-
     if (end < text.length) {
-      const breakOn = ['\n\n', '\n', '. ', ' '];
-      for (const sep of breakOn) {
+      for (const sep of ['\n\n', '\n', '. ', ' ']) {
         const idx = text.lastIndexOf(sep, end);
-        if (idx > start + chunkSize / 2) {
-          end = idx + sep.length;
-          break;
-        }
+        if (idx > start + chunkSize / 2) { end = idx + sep.length; break; }
       }
     }
-
     const chunk = text.slice(start, end).trim();
     if (chunk.length > 0) chunks.push(chunk);
     start = end - overlap;
   }
-
   return chunks;
 }
