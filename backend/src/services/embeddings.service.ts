@@ -11,6 +11,7 @@ async function hfFetch(inputs: string | string[]): Promise<number[] | number[][]
         : {}),
     },
     body: JSON.stringify({ inputs, options: { wait_for_model: true } }),
+    signal: AbortSignal.timeout(45000),
   });
 
   if (!response.ok) {
