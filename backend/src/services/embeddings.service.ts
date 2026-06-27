@@ -1,7 +1,7 @@
 const HF_API_URL =
   'https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2';
 
-export async function embed(text: string): Promise<number[]> {
+async function hfFetch(inputs: string | string[]): Promise<number[] | number[][]> {
   const response = await fetch(HF_API_URL, {
     method: 'POST',
     headers: {
@@ -10,7 +10,7 @@ export async function embed(text: string): Promise<number[]> {
         ? { Authorization: `Bearer ${process.env.HF_API_TOKEN}` }
         : {}),
     },
-    body: JSON.stringify({ inputs: text, options: { wait_for_model: true } }),
+    body: JSON.stringify({ inputs, options: { wait_for_model: true } }),
   });
 
   if (!response.ok) {
@@ -18,8 +18,17 @@ export async function embed(text: string): Promise<number[]> {
     throw new Error(`Embedding API error ${response.status}: ${err}`);
   }
 
-  const result = await response.json() as number[] | number[][];
+  return response.json();
+}
+
+export async function embed(text: string): Promise<number[]> {
+  const result = await hfFetch(text) as number[] | number[][];
   return Array.isArray(result[0]) ? (result as number[][])[0] : (result as number[]);
+}
+
+export async function embedBatch(texts: string[]): Promise<number[][]> {
+  const result = await hfFetch(texts) as number[][];
+  return result;
 }
 
 export function splitIntoChunks(

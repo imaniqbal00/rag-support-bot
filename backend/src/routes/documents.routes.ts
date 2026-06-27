@@ -3,7 +3,7 @@ import multer from 'multer';
 import pdfParse from 'pdf-parse';
 import { requireAuth, AuthRequest } from '../middleware/auth.middleware';
 import { supabase } from '../services/supabase.service';
-import { embed, splitIntoChunks } from '../services/embeddings.service';
+import { embedBatch, splitIntoChunks } from '../services/embeddings.service';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
@@ -57,17 +57,14 @@ router.post('/', requireAuth, upload.single('file'), async (req: AuthRequest, re
     const text = await extractText(file.buffer, file.mimetype);
     const chunks = splitIntoChunks(text);
 
-    const chunkRows = [];
-    for (let i = 0; i < chunks.length; i++) {
-      const embedding = await embed(chunks[i]);
-      chunkRows.push({
-        tenant_id: req.tenantId,
-        document_id: doc.id,
-        content: chunks[i],
-        embedding,
-        chunk_index: i,
-      });
-    }
+    const embeddings = await embedBatch(chunks);
+    const chunkRows = chunks.map((chunk, i) => ({
+      tenant_id: req.tenantId,
+      document_id: doc.id,
+      content: chunk,
+      embedding: embeddings[i],
+      chunk_index: i,
+    }));
 
     const { error: chunkError } = await supabase
       .from('document_chunks')
