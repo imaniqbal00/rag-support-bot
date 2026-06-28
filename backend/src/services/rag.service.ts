@@ -62,7 +62,7 @@ export async function generateAnswer(
 
   const answer = completion.choices[0]?.message?.content?.trim() ?? 'Unable to generate a response.';
   const confidence = Math.min(avgSimilarity, 1);
-  const resolved = confidence > 0.4;
+  const resolved = confidence > 0.25;
 
   return { answer, confidence, resolved };
 }
