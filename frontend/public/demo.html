@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TechCorp — Smart Business Solutions</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f9fafb; color: #1f2937; }
+
+    /* NAV */
+    nav {
+      background: #fff;
+      padding: 16px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-size: 22px; font-weight: 700; color: #4f46e5; }
+    .logo span { color: #1f2937; }
+    nav ul { list-style: none; display: flex; gap: 30px; }
+    nav ul a { text-decoration: none; color: #6b7280; font-size: 15px; }
+    nav ul a:hover { color: #4f46e5; }
+    .nav-btn {
+      background: #4f46e5; color: #fff; padding: 9px 22px;
+      border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: #fff;
+      padding: 100px 60px;
+      text-align: center;
+    }
+    .hero h1 { font-size: 52px; font-weight: 800; margin-bottom: 20px; line-height: 1.2; }
+    .hero p { font-size: 20px; opacity: 0.85; max-width: 600px; margin: 0 auto 36px; }
+    .hero-btns { display: flex; gap: 16px; justify-content: center; }
+    .btn-white {
+      background: #fff; color: #4f46e5; padding: 14px 32px;
+      border-radius: 10px; font-weight: 700; text-decoration: none; font-size: 16px;
+    }
+    .btn-outline {
+      border: 2px solid rgba(255,255,255,0.6); color: #fff; padding: 14px 32px;
+      border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 16px;
+    }
+
+    /* STATS */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      padding: 50px 60px;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .stat { text-align: center; }
+    .stat h2 { font-size: 36px; font-weight: 800; color: #4f46e5; }
+    .stat p { color: #6b7280; font-size: 14px; margin-top: 4px; }
+
+    /* FEATURES */
+    .features { padding: 80px 60px; }
+    .features h2 { text-align: center; font-size: 36px; font-weight: 700; margin-bottom: 12px; }
+    .features .sub { text-align: center; color: #6b7280; margin-bottom: 50px; font-size: 17px; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; max-width: 1100px; margin: 0 auto; }
+    .card {
+      background: #fff; border-radius: 16px; padding: 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      border: 1px solid #e5e7eb;
+    }
+    .card-icon { font-size: 36px; margin-bottom: 16px; }
+    .card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .card p { color: #6b7280; font-size: 14px; line-height: 1.7; }
+
+    /* PRICING */
+    .pricing { padding: 80px 60px; background: #f3f4f6; }
+    .pricing h2 { text-align: center; font-size: 36px; font-weight: 700; margin-bottom: 12px; }
+    .pricing .sub { text-align: center; color: #6b7280; margin-bottom: 50px; }
+    .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 900px; margin: 0 auto; }
+    .plan {
+      background: #fff; border-radius: 16px; padding: 32px;
+      border: 2px solid #e5e7eb; text-align: center;
+    }
+    .plan.popular { border-color: #4f46e5; position: relative; }
+    .badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: #4f46e5; color: #fff; padding: 4px 16px;
+      border-radius: 20px; font-size: 12px; font-weight: 600;
+    }
+    .plan h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .plan .price { font-size: 40px; font-weight: 800; color: #4f46e5; margin: 16px 0; }
+    .plan .price span { font-size: 16px; color: #6b7280; font-weight: 400; }
+    .plan ul { list-style: none; margin: 20px 0; text-align: left; }
+    .plan ul li { padding: 6px 0; font-size: 14px; color: #6b7280; }
+    .plan ul li::before { content: "✓ "; color: #4f46e5; font-weight: 700; }
+    .plan-btn {
+      display: block; background: #4f46e5; color: #fff;
+      padding: 12px; border-radius: 10px; text-decoration: none;
+      font-weight: 600; font-size: 15px; margin-top: 16px;
+    }
+
+    /* FAQ */
+    .faq { padding: 80px 60px; max-width: 800px; margin: 0 auto; }
+    .faq h2 { text-align: center; font-size: 36px; font-weight: 700; margin-bottom: 40px; }
+    .faq-item { border-bottom: 1px solid #e5e7eb; padding: 20px 0; }
+    .faq-item h4 { font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 8px; }
+    .faq-item p { color: #6b7280; font-size: 14px; line-height: 1.7; }
+
+    /* FOOTER */
+    footer {
+      background: #1f2937; color: #9ca3af;
+      text-align: center; padding: 30px;
+      font-size: 14px;
+    }
+    footer span { color: #4f46e5; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">Tech<span>Corp</span></div>
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Features</a></li>
+      <li><a href="#">Pricing</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+    <a href="#" class="nav-btn">Get Started Free</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <h1>Smarter Business,<br/>Better Results</h1>
+    <p>TechCorp helps small and medium businesses manage projects, teams, and workflows — all in one place.</p>
+    <div class="hero-btns">
+      <a href="#" class="btn-white">Start Free Trial</a>
+      <a href="#" class="btn-outline">Watch Demo</a>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><h2>10,000+</h2><p>Happy Customers</p></div>
+    <div class="stat"><h2>99.9%</h2><p>Uptime Guarantee</p></div>
+    <div class="stat"><h2>14 Days</h2><p>Free Trial</p></div>
+    <div class="stat"><h2>24/7</h2><p>Support Available</p></div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="features">
+    <h2>Everything You Need</h2>
+    <p class="sub">Powerful tools to grow your business faster</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h3>Advanced Analytics</h3>
+        <p>Get real-time insights into your business performance with beautiful dashboards and reports.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">👥</div>
+        <h3>Team Collaboration</h3>
+        <p>Work seamlessly with your team. Assign tasks, track progress, and hit deadlines together.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔗</div>
+        <h3>100+ Integrations</h3>
+        <p>Connect with Slack, Google Workspace, Zapier, and all your favourite tools instantly.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔒</div>
+        <h3>Enterprise Security</h3>
+        <p>Bank-level encryption, SSO, and compliance tools to keep your data safe at all times.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Lightning Fast</h3>
+        <p>Built on modern infrastructure so your team never has to wait. Speed is a feature, not a bonus.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📱</div>
+        <h3>Mobile Ready</h3>
+        <p>Access your workspace from anywhere. Full-featured iOS and Android apps included.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing">
+    <h2>Simple, Transparent Pricing</h2>
+    <p class="sub">No hidden fees. Cancel anytime.</p>
+    <div class="plans">
+      <div class="plan">
+        <h3>Starter</h3>
+        <div class="price">$9<span>/mo</span></div>
+        <ul>
+          <li>Up to 3 users</li>
+          <li>5 projects</li>
+          <li>2GB storage</li>
+          <li>Email support</li>
+        </ul>
+        <a href="#" class="plan-btn">Get Started</a>
+      </div>
+      <div class="plan popular">
+        <div class="badge">Most Popular</div>
+        <h3>Pro</h3>
+        <div class="price">$29<span>/mo</span></div>
+        <ul>
+          <li>Up to 15 users</li>
+          <li>Unlimited projects</li>
+          <li>20GB storage</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="#" class="plan-btn">Get Started</a>
+      </div>
+      <div class="plan">
+        <h3>Business</h3>
+        <div class="price">$79<span>/mo</span></div>
+        <ul>
+          <li>Up to 50 users</li>
+          <li>Unlimited storage</li>
+          <li>24/7 phone support</li>
+          <li>Dedicated manager</li>
+        </ul>
+        <a href="#" class="plan-btn">Get Started</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <h4>Do you offer a free trial?</h4>
+      <p>Yes! We offer a 14-day free trial with no credit card required. You get full access to all Pro features.</p>
+    </div>
+    <div class="faq-item">
+      <h4>Can I cancel anytime?</h4>
+      <p>Absolutely. Cancel your subscription at any time from your account settings. No questions asked.</p>
+    </div>
+    <div class="faq-item">
+      <h4>What payment methods do you accept?</h4>
+      <p>We accept Visa, Mastercard, American Express, and PayPal.</p>
+    </div>
+    <div class="faq-item">
+      <h4>Is my data secure?</h4>
+      <p>Yes. We use bank-level encryption and are fully GDPR compliant. Your data is always safe with us.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 <span>TechCorp</span>. All rights reserved. Built with ❤️ for businesses worldwide.</p>
+  </footer>
+
+  <!-- BOTBASE CHAT WIDGET -->
+  <script
+    src="https://rag-support-bot-sigma.vercel.app/widget.js"
+    data-token="11d98e1b93622d7da7fd4bc4a778ec2d202a42eee966d5d2c83796464d53b26c"
+    data-bot-name="TechCorp Support"
+    data-greeting="Hi! I'm TechCorp's support bot. Ask me anything about our plans, features, or billing!"
+    data-backend="https://rag-support-bot-sigma.vercel.app"
+    defer
+  ></script>
+
+</body>
+</html>
